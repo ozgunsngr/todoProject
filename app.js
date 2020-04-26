@@ -7,11 +7,14 @@ const firstCardBody = document.querySelectorAll(".card-body")[0];
 const secondCardBody = document.querySelectorAll(".card-body")[1];
 const todoList = document.querySelector(".list-group")
 
-//
 eventListeners();
+todoInput.value="";
+todoFilter.value="";
 
 function eventListeners() {
     todoForm.addEventListener("submit", addTodo);
+    secondCardBody.addEventListener("click", removeItem);
+    todoFilter.addEventListener("keyup", filterTodos);
     window.addEventListener("DOMContentLoaded", loadItemsFromStorage);
 
 
@@ -22,18 +25,19 @@ function addTodo(e) {
 
     if (todo === "") {
         showAlert("danger", "Lütfen geçerli bir Todo giriniz!");
-    } else {
-        if(!control(todo)){
+    }
+    else {
+        if (!control(todo)) {
 
             addTodoToUI(todo);
             addTodoToStorage(todo);
             showAlert("success", "Todo Başarıyla Eklendi!");
-        }else{
+            todoInput.value="";
+
+
+        } else {
             showAlert("info", "Ekleyeceğiniz Todo Zaten Eklenmiş!");
         }
-        
-        
-
     }
 
     e.preventDefault();
@@ -55,15 +59,15 @@ function addTodoToStorage(todo) {
         let todos = getTodosFromStorage();
         todos.push(todo);
         localStorage.setItem("todos", JSON.stringify(todos));
-       
-        
+
+
     }
 }
 
 function loadItemsFromStorage() {
     let todos = getTodosFromStorage();
     todos.forEach(function (todo) {
-        
+
         addTodoToUI(todo);
     })
 }
@@ -99,24 +103,56 @@ function addTodoToUI(newTodo) {
     //     <a href="#" class="delete-item"><i class="fa fa-remove"></i></a>
     // </li>
     //Creating listItem
-    
-        let listItem = document.createElement("li");
-        listItem.className = "list-group-item d-flex justify-content-between";
-        //Adding Text
-        listItem.appendChild(document.createTextNode(newTodo));
 
-        //Creating listLink
-        let listLink = document.createElement("a");
-        listLink.href = "#";
-        listLink.className = "delete-item";
-        listLink.innerHTML = "<i class='fa fa-remove'></i>";
+    let listItem = document.createElement("li");
+    listItem.className = "list-group-item d-flex justify-content-between";
+    //Adding Text
+    listItem.appendChild(document.createTextNode(newTodo));
 
-        //Adding link to item
-        listItem.appendChild(listLink);
-        //Adding item to list
-        todoList.insertBefore(listItem, todoList.firstChild);
-    
-   
+    //Creating listLink
+    let listLink = document.createElement("a");
+    listLink.href = "#";
+    listLink.className = "delete-item";
+    listLink.innerHTML = "<i class='fa fa-remove'></i>";
+
+    //Adding link to item
+    listItem.appendChild(listLink);
+    //Adding item to list
+    todoList.insertBefore(listItem, todoList.firstChild);
+
+
 
 
 }
+function removeItem(e) {
+
+    if (e.target.className === "fa fa-remove") {
+        e.target.parentElement.parentElement.remove();
+        deleteFromStorage(e.target.parentElement.parentElement.textContent);
+    }
+}
+function deleteFromStorage(text) {
+    let todos = getTodosFromStorage();
+    todos.forEach(function (todo, index) {
+        if (text === todo) {
+            todos.splice(index, 1)
+            localStorage.setItem("todos", JSON.stringify(todos));
+            showAlert("success", "Todo Başarıyla Silindi!")
+        }
+    });
+}
+function filterTodos(e) {
+    const filterInput = todoFilter.value.toLowerCase();
+    const listItems = document.querySelectorAll(".list-group-item");
+    listItems.forEach(function (item) {
+        const text = item.textContent.toLowerCase();
+        if(text.indexOf(filterInput) ===-1){
+            //Bulamadı
+            item.setAttribute("style","display: none!important;");
+        }else{
+            item.setAttribute("style","display:block;");
+        }
+    });
+}
+
+
