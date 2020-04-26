@@ -6,15 +6,17 @@ const todoFilter = document.querySelector("#todo-filter");
 const firstCardBody = document.querySelectorAll(".card-body")[0];
 const secondCardBody = document.querySelectorAll(".card-body")[1];
 const todoList = document.querySelector(".list-group")
+const deleteBtn = document.querySelector("#delete-all");
 
 eventListeners();
-todoInput.value="";
-todoFilter.value="";
+todoInput.value = "";
+todoFilter.value = "";
 
 function eventListeners() {
     todoForm.addEventListener("submit", addTodo);
     secondCardBody.addEventListener("click", removeItem);
     todoFilter.addEventListener("keyup", filterTodos);
+    deleteBtn.addEventListener("click", deleteAll);
     window.addEventListener("DOMContentLoaded", loadItemsFromStorage);
 
 
@@ -32,7 +34,7 @@ function addTodo(e) {
             addTodoToUI(todo);
             addTodoToStorage(todo);
             showAlert("success", "Todo Başarıyla Eklendi!");
-            todoInput.value="";
+            todoInput.value = "";
 
 
         } else {
@@ -146,13 +148,30 @@ function filterTodos(e) {
     const listItems = document.querySelectorAll(".list-group-item");
     listItems.forEach(function (item) {
         const text = item.textContent.toLowerCase();
-        if(text.indexOf(filterInput) ===-1){
+        if (text.indexOf(filterInput) === -1) {
             //Bulamadı
-            item.setAttribute("style","display: none!important;");
-        }else{
-            item.setAttribute("style","display:block;");
+            item.setAttribute("style", "display: none!important;");
+        } else {
+            item.setAttribute("style", "display:block;");
         }
     });
 }
+function deleteAll(e) {
+    if (todoList.firstElementChild != null) {
 
+        if (window.confirm("Emin Misin?")) {
+            while (todoList.firstElementChild != null) {
+                todoList.removeChild(todoList.firstElementChild);
+            }
+            localStorage.removeItem("todos");
+            showAlert("success", "Bütün Todolar Başarıyla Silindi!");
+        }
+
+    } else {
+        showAlert("info", "Silinecek Todo Bulunmamaktadır...");
+    }
+
+
+
+}
 
